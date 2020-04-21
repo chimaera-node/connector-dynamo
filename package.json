@@ -1,0 +1,25 @@
+{
+  "name": "@chimaera/connector-dynamo",
+  "version": "0.0.1",
+  "description": "connects to dynamo",
+  "author": "Richard Tong",
+  "license": "UNLICENSED",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "github:chimaera-node/connector-dynamo"
+  },
+  "scripts": {
+    "test": "mocha ."
+  },
+  "dependencies": {
+    "@chimaera/exception": "latest",
+    "@chimaera/query-lexer": "latest",
+    "@chimaera/uri": "latest",
+    "aws-sdk": "^2.628.0",
+    "rubico": "latest"
+  },
+  "devDependencies": {
+    "a-sert": "latest"
+  }
+}
