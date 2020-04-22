@@ -70,11 +70,9 @@ describe('connectorDynamo', () => {
       a.eq(_.get('cursor'), '{"a":"yo","b":1002,"_id":"3"}'),
       a.eq(_.get('meta.count'), 3),
     )({
-      query: $ => ({
-        filter: $.and($.eq('a', 'yo'), $.gte('b', 1000)),
-        sort: $.orderBy($.asc('b')),
-        limit: 3,
-      }),
+      filter: $ => $.and($.eq('a', 'yo'), $.gte('b', 1000)),
+      sort: $ => $.orderBy($.asc('b')),
+      limit: 3,
     })),
 
     _.effect(conn => _.flow(
@@ -86,12 +84,10 @@ describe('connectorDynamo', () => {
       a.ok(_.flow(_.get('cursor'), _.dne)),
       a.eq(_.get('meta.count'), 2),
     )({
-      query: $ => ({
-        filter: $.and($.eq('a', 'yo'), $.gte('b', 1000)),
-        sort: $.orderBy($.asc('b')),
-        limit: 3,
-        cursor: '{"a":"yo","b":1002,"_id":"3"}',
-      }),
+      filter: $ => $.and($.eq('a', 'yo'), $.gte('b', 1000)),
+      sort: $ => $.orderBy($.asc('b')),
+      limit: 3,
+      cursor: '{"a":"yo","b":1002,"_id":"3"}',
     })),
 
     _.effect(conn => _.flow(
@@ -104,11 +100,9 @@ describe('connectorDynamo', () => {
       a.eq(_.get('cursor'), '{"a":"yo","b":1002,"_id":"3"}'),
       a.eq(_.get('meta.count'), 3),
     )({
-      query: $ => ({
-        filter: $.and($.eq('a', 'yo'), $.gte('b', 1000)),
-        sort: $.orderBy($.desc('b')),
-        limit: 3,
-      }),
+      filter: $ => $.and($.eq('a', 'yo'), $.gte('b', 1000)),
+      sort: $ => $.orderBy($.desc('b')),
+      limit: 3,
     })),
 
     _.effect(conn => _.flow(
@@ -117,11 +111,9 @@ describe('connectorDynamo', () => {
         exception.MalformedQuery('filter must include sort keys'),
       ),
     )({
-      query: $ => ({
-        filter: $.and($.eq('a', 'yo'), $.gte('b', 1000)),
-        sort: $.orderBy($.desc('c')),
-        limit: 3,
-      }),
+      filter: $ => $.and($.eq('a', 'yo'), $.gte('b', 1000)),
+      sort: $ => $.orderBy($.desc('c')),
+      limit: 3,
     })),
 
     _.effect(conn => _.flow(
@@ -130,11 +122,9 @@ describe('connectorDynamo', () => {
         exception.IndexNotFound('c-d-index or d-c-index'),
       ),
     )({
-      query: $ => ({
-        filter: $.and($.eq('c', 'yo'), $.gte('d', 1000)),
-        sort: $.orderBy($.desc('d')),
-        limit: 3,
-      }),
+      filter: $ => $.and($.eq('c', 'yo'), $.gte('d', 1000)),
+      sort: $ => $.orderBy($.desc('d')),
+      limit: 3,
     })),
 
     _.effect(conn => _.flow(
@@ -143,11 +133,9 @@ describe('connectorDynamo', () => {
         exception.MalformedQuery('Unknown sort operator exists'),
       ),
     )({
-      query: $ => ({
-        filter: $.and($.eq('a', 'yo'), $.gte('b', 1000)),
-        sort: $.orderBy($.exists('b')),
-        limit: 3,
-      }),
+      filter: $ => $.and($.eq('a', 'yo'), $.gte('b', 1000)),
+      sort: $ => $.orderBy($.exists('b')),
+      limit: 3,
     })),
 
     _.effect(conn => conn.free()),

@@ -278,18 +278,16 @@ const del = config => client => _.flow(
 
 /*
 config {...} => client {...} => query {
-  query: $ => ({
-    filter: $.and(
-      $.eq('a', 'hey'),
-      $.lt('b', 6), $.lte('c', 5),
-      $.gt('d', 0), $.gte('e', 1),
-      $.prefix('f', 'wazz'),
-      $.between('g', 1, 5),
-    ),
-    sort: $.orderBy($.asc('b'), $.desc('c')),
-    limit: 100,
-    cursor: any|null,
-  }),
+  filter: $ => $.and(
+    $.eq('a', 'hey'),
+    $.lt('b', 6), $.lte('c', 5),
+    $.gt('d', 0), $.gte('e', 1),
+    $.prefix('f', 'wazz'),
+    $.between('g', 1, 5),
+  ),
+  sort: $ => $.orderBy($.asc('b'), $.desc('c')),
+  limit: 100,
+  cursor: any|null,
 } => query_result {
   result: [{ _id: '1', _source: {...}, [_score: 5] }],
   cursor: any|null,
@@ -308,8 +306,7 @@ const query = config => {
     )),
   )(_.get('schema.indexes', [])(config)))
   return client => _.flow(
-    _.get('query'),
-    queryLexer,
+    _.map(_.flow(_.toFn, queryLexer)),
     _.switch(
       _.flow(
         _.diverge([
