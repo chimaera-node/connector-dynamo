@@ -28,35 +28,55 @@ const fromDynamoAttributeValue = x => {
   throw e
 }
 
+const toDynamoType = x => {
+  if (x === 'string') return 'S'
+  if (x === 'text') return 'S'
+  if (x === 'number') return 'N'
+  if (x === 'integer' || x === 'int') return 'N'
+  if (x === 'float') return 'N'
+  if (x === 'binary') return 'B'
+  throw new RangeError(`unsupported type ${x}`)
+}
+
 // config {...} => client {...} => () => undefined
 const init = config => client => _.flow(
   () => ({
     TableName: getTableName(config),
     KeySchema: [{ AttributeName: '_id', KeyType: 'HASH' }],
-    AttributeDefinitions: [{ AttributeName: '_id', AttributeType: 'S' }],
+    AttributeDefinitions: _.flow.sync(
+      Object.entries,
+      _.map.sync(_.diverge.sync({
+        AttributeName: _.get(0),
+        AttributeType: _.flow.sync(_.get(1), toDynamoType),
+      }), { with_index: true }),
+      _.concat({ AttributeName: '_id', AttributeType: 'S' }),
+    )(config.field_datatypes),
   }),
   x => {
-    if (_.get('schema.base.dynamo_capacity')(config) === 'on_demand') {
+    if (config.dynamo_capacity === 'on_demand') {
       x.BillingMode = 'PAY_PER_REQUEST'
     } else {
       x.BillingMode = 'PROVISIONED'
       x.ProvisionedThroughput = {
-        ReadCapacityUnits: _.get('schema.base.dynamo_rcu', 5)(config),
-        WriteCapacityUnits: _.get('schema.base.dynamo_wcu', 5)(config),
+        ReadCapacityUnits: config.dynamo_rcu || 5,
+        WriteCapacityUnits: config.dynamo_wcu || 5,
       }
     }
-    if (_.has('schema.indexes')(config)) {
+    if (_.has('index')(config)) {
       const addedFields = new Set(['_id'])
-      for (const index of config.schema.indexes) {
-        if (_.size(index.key) < 2) throw new RangeError(`global secondary indexes require two fields`)
-        for (const key of index.key) {
-          if (addedFields.has(key.name)) continue
-          addedFields.add(key.name)
+      for (const index of config.index) {
+        if (_.size(index.fields) < 2) throw new RangeError(`global secondary indexes require two fields`)
+        for (const field of index.fields) {
+          if (addedFields.has(field)) continue
+          addedFields.add(field)
           x.AttributeDefinitions.push({
-            AttributeName: key.name,
+            AttributeName: field,
             AttributeType: (t => {
               if (t === 'string') return 'S'
+              if (t === 'text') return 'S'
               if (t === 'number') return 'N'
+              if (t === 'integer' || t === 'int') return 'N'
+              if (t === 'float') return 'N'
               if (t === 'binary') return 'B'
               throw new RangeError(`invalid type ${t}`)
             })(key.type),

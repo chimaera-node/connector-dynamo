@@ -144,6 +144,10 @@ describe('connectorDynamo', () => {
     env: 'local',
     prefix: 'my_table',
     endpoint: 'http://localhost:8000',
+    index: [{ fields: ['a', 'b'] }],
+    field_datatypes: { a: 'string', b: 'number' },
+    dynamo_capacity: 'provisioned',
+    dynamo_rcu: 5, dynamo_wcu: 5,
     schema: {
       base: {
         // dynamo_capacity: 'on_demand',
